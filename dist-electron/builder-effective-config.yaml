@@ -1,0 +1,17 @@
+directories:
+  output: dist-electron
+  buildResources: build
+appId: com.yourcompany.vueelectronapp
+productName: VueElectronApp
+files:
+  - filter:
+      - dist/**/*
+      - electron/**/*
+icon: electron/icons/icon
+mac:
+  target: dmg
+win:
+  target: nsis
+linux:
+  target: AppImage
+electronVersion: 34.3.0
