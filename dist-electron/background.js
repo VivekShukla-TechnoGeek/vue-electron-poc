@@ -38,8 +38,19 @@ const createMainWindow = async () => {
     mainWindow.show();
     mainWindow.focus();
     mainWindow.webContents.openDevTools();
-    if (process.platform === "darwin") {
-      app.dock.show();
+    const platform = process.platform;
+    if (platform === "darwin") {
+      if (app.dock && typeof app.dock.show === "function") {
+        app.dock.show();
+      }
+      console.log("App running on macOS");
+    } else if (platform === "win32") {
+      app.setAppUserModelId("com.yourcompany.yourapp");
+      console.log("App running on Windows");
+    } else if (platform === "linux") {
+      console.log("App running on Linux");
+    } else {
+      console.warn(`Unsupported OS platform: ${platform}`);
     }
   });
   mainWindow.webContents.session.webRequest.onHeadersReceived(
@@ -55,16 +66,21 @@ const createMainWindow = async () => {
     }
   );
 };
-app.whenReady().then(() => {
-  createMainWindow();
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow();
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  console.log(app);
+} else {
+  app.whenReady().then(() => {
+    createMainWindow();
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow();
+      }
+    });
+  });
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+      app.quit();
     }
   });
-});
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
+}

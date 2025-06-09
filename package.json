@@ -8,7 +8,8 @@
     "build": "vite build && electron-builder",
     "electron:dev": "cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron electron/background.js",
     "electron:build": "electron-builder",
-    "start": "electron dist-electron/mac-arm64/VueElectronApp.app"
+    "start": "electron dist-electron/mac-arm64/VueElectronApp.app",
+    "debug": "node --inspect=5858 ./node_modules/.bin/electron ."
   },
   "dependencies": {
     "vue": "^3.5.13"

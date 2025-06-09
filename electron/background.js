@@ -50,8 +50,27 @@ const createMainWindow = async () => {
     mainWindow.show();
     mainWindow.focus();
     mainWindow.webContents.openDevTools(); // ✅ Open DevTools for debugging (optional)
-    if (process.platform === "darwin") {
-      app.dock.show(); // ✅ Fixes hidden window issue on macOS
+    // if (process.platform === "darwin") {
+    //   app.dock.show(); // ✅ Fixes hidden window issue on macOS
+    // }
+    const platform = process.platform;
+
+    // 🌐 OS-specific logic
+    if (platform === "darwin") {
+      // macOS: Ensure dock icon is visible
+      if (app.dock && typeof app.dock.show === "function") {
+        app.dock.show();
+      }
+      console.log("App running on macOS");
+    } else if (platform === "win32") {
+      // Windows: Set App User Model ID for notifications/taskbar
+      app.setAppUserModelId("com.yourcompany.yourapp");
+      console.log("App running on Windows");
+    } else if (platform === "linux") {
+      // Linux-specific logic (if needed)
+      console.log("App running on Linux");
+    } else {
+      console.warn(`Unsupported OS platform: ${platform}`);
     }
   });
 
@@ -70,8 +89,15 @@ const createMainWindow = async () => {
   );
 };
 
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  console.log(app);
+  //app.quit();
+} else {
 // ✅ App Ready
 app.whenReady().then(() => {
+  
   createMainWindow();
 
   // Ensure app opens when clicking the dock icon (macOS)
@@ -88,3 +114,5 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+}
