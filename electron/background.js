@@ -1,7 +1,7 @@
-import { app, BrowserWindow } from 'electron';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import path from 'path';
+import { app, BrowserWindow } from "electron";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import path from "path";
 
 // Define __dirname manually for ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -28,10 +28,10 @@ const createMainWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    resizable: false,
-    icon: path.join(__dirname, 'icons/icon.png'),
+    resizable: true,
+    icon: path.join(__dirname, "icons/icon.png"),
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
     },
     show: false, // Prevent flickering
   });
@@ -41,29 +41,33 @@ const createMainWindow = async () => {
     await waitForViteServer(); // Wait until Vite is ready
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 
   // ✅ Show the window only when ready
-  mainWindow.once('ready-to-show', () => {
+  mainWindow.once("ready-to-show", () => {
     console.log("🚀 Window is ready, showing it now.");
     mainWindow.show();
     mainWindow.focus();
     mainWindow.webContents.openDevTools(); // ✅ Open DevTools for debugging (optional)
-    if (process.platform === 'darwin') {
+    if (process.platform === "darwin") {
       app.dock.show(); // ✅ Fixes hidden window issue on macOS
     }
   });
 
   // ✅ Security Fix: Set Content Security Policy (Avoids "unsafe-eval" warning)
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        "Content-Security-Policy": ["default-src 'self'; script-src 'self' 'unsafe-inline'"]
-      }
-    });
-  });
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
+          ],
+        },
+      });
+    }
+  );
 };
 
 // ✅ App Ready
@@ -71,7 +75,7 @@ app.whenReady().then(() => {
   createMainWindow();
 
   // Ensure app opens when clicking the dock icon (macOS)
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createMainWindow();
     }
@@ -79,8 +83,8 @@ app.whenReady().then(() => {
 });
 
 // ✅ Fix: Quit app properly when all windows are closed (Except on macOS)
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });

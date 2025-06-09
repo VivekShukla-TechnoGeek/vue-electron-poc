@@ -18,7 +18,7 @@ const createMainWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    resizable: false,
+    resizable: true,
     icon: path.join(__dirname, "icons/icon.png"),
     webPreferences: {
       nodeIntegration: true
@@ -42,14 +42,18 @@ const createMainWindow = async () => {
       app.dock.show();
     }
   });
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        "Content-Security-Policy": ["default-src 'self'; script-src 'self' 'unsafe-inline'"]
-      }
-    });
-  });
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+          ]
+        }
+      });
+    }
+  );
 };
 app.whenReady().then(() => {
   createMainWindow();
